@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <!-- Company Logo -->
+                <img src="https://placehold.co/48x48/blue/white?text=LOGO" alt="Commerce.io Logo" class="h-12 w-12 rounded-full mr-3">
+                <a href="#" class="text-2xl font-bold text-gray-900 tracking-tight">Commerce.io</a>
+                <button id="menu-toggle" class="md:hidden text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+            <nav id="nav-menu" class="hidden md:flex flex-col md:flex-row items-center w-full md:w-auto mt-4 md:mt-0 space-y-4 md:space-y-0 md:space-x-8">
+                <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">Home</a>
+                <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">Shop</a>
+                <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">About</a>
+                <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">Contact</a>
+                <div class="relative w-full md:w-auto">
+                    <input type="text" id="search-input" placeholder="Search products..." class="w-full md:w-64 px-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <button id="cart-button" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.703.667 1.703H17.5a2 2 0 002-2v-2a2 2 0 00-2-2h-3.5"></path></svg>
+                    <span id="cart-count" class="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-1 ml-1">0</span>
+                </button>
+            </nav>
+        </div>
+        <!-- Vision & Mission Section -->
+        <div class="bg-blue-50 py-4">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-2 md:mb-0">
+                    <span class="font-semibold text-blue-900">Vision:</span>
+                    <span class="text-gray-700">To be the leading platform for stylish, sustainable commerce worldwide.</span>
+                </div>
+                <div>
+                    <span class="font-semibold text-blue-900">Mission:</span>
+                    <span class="text-gray-700">Empowering customers with quality products that blend style, comfort, and sustainability.</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Add this above your <main> section for registration/login modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 items-center justify-center">
+        <div class="bg-white rounded-xl p-8 w-11/12 md:w-1/3 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h3 class="text-2xl font-bold" id="auth-modal-title">Register</h3>
+                <button id="close-auth-modal" class="text-gray-500 hover:text-gray-800 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <form id="auth-form" class="flex flex-col gap-4">
+                <input type="text" id="reg-name" placeholder="Full Name" class="border rounded px-3 py-2" required>
+                <input type="email" id="reg-email" placeholder="Email" class="border rounded px-3 py-2" required>
+                <input type="password" id="reg-password" placeholder="Password" class="border rounded px-3 py-2" required>
+                <input type="text" id="reg-location" placeholder="Location" class="border rounded px-3 py-2">
+                <!-- Simple CAPTCHA -->
+                <div class="flex items-center gap-2">
+                    <span id="captcha-question" class="font-semibold"></span>
+                    <input type="text" id="captcha-answer" placeholder="Answer" class="border rounded px-3 py-2 w-24" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">Register</button>
+                <p class="text-sm text-center text-gray-500">
+                    Already have an account? <a href="#" id="show-login" class="text-blue-600 hover:underline">Login</a>
+                </p>
+            </form>
+            <form id="login-form" class="flex flex-col gap-4 hidden">
+                <input type="email" id="login-email" placeholder="Email" class="border rounded px-3 py-2" required>
+                <input type="password" id="login-password" placeholder="Password" class="border rounded px-3 py-2" required>
+                <!-- Simple CAPTCHA -->
+                <div class="flex items-center gap-2">
+                    <span id="login-captcha-question" class="font-semibold"></span>
+                    <input type="text" id="login-captcha-answer" placeholder="Answer" class="border rounded px-3 py-2 w-24" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">Login</button>
+                <p class="text-sm text-center text-gray-500">
+                    Don't have an account? <a href="#" id="show-register" class="text-blue-600 hover:underline">Register</a>
+                </p>
+            </form>
+            <div id="auth-message" class="text-center text-red-500 mt-2"></div>
+        </div>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative bg-gray-900 text-white h-[400px] md:h-[500px] flex items-center justify-center text-center overflow-hidden rounded-b-3xl mx-4 my-8">
+            <img src="https://images.unsplash.com/photo-1542291026-785344383c4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Product Promotion" class="absolute inset-0 w-full h-full object-cover opacity-50">
+            <div class="relative z-10 p-4">
+                <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 leading-tight">Your Style, <br> Your Story.</h1>
+                <p class="text-lg md:text-xl max-w-xl mx-auto mb-8 text-gray-300">Discover a curated collection of products designed to elevate your everyday life.</p>
+                <a href="#" class="bg-white text-gray-900 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-200 transition-all duration-300 transform hover:scale-105">Shop Now</a>
+            </div>
+        </section>
+
+        <!-- Product Grid Section -->
+        <section class="container mx-auto px-4 py-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Featured Products</h2>
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Products will be generated here by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Shopping Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 transition-opacity duration-300 items-center justify-center">
+        <div class="bg-white rounded-xl p-8 w-11/12 md:w-1/2 lg:w-1/3 shadow-xl transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h3 class="text-2xl font-bold">Your Cart</h3>
+                <button id="close-cart-modal" class="text-gray-500 hover:text-gray-800 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="cart-items" class="max-h-80 overflow-y-auto mb-4">
+                <!-- Cart items will be displayed here -->
+                <p id="empty-cart-message" class="text-gray-500 text-center">Your cart is empty.</p>
+            </div>
+            <div class="flex justify-between items-center pt-4 border-t">
+                <span class="text-xl font-bold">Total:</span>
+                <span id="cart-total" class="text-xl font-bold">$0.00</span>
+            </div>
+            <!-- Add this inside your cart modal, just above the Checkout button -->
+            <div class="mt-6">
+                <h4 class="text-lg font-semibold mb-2">Payment Options</h4>
+                <div class="flex flex-col gap-2">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="payment" value="Credit Card" checked class="accent-blue-600">
+                        <span>Credit Card</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="payment" value="PayPal" class="accent-blue-600">
+                        <span>PayPal</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="payment" value="Mobile Money" class="accent-blue-600">
+                        <span>Mobile Money</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="payment" value="Bank Transfer" class="accent-blue-600">
+                        <span>Bank Transfer</span>
+                    </label>
+                </div>
+            </div>
+            <div class="mt-6">
+                <h4 class="text-lg font-semibold mb-2">Courier Service</h4>
+                <div class="flex flex-col gap-2">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="courier" value="DHL" checked class="accent-blue-600">
+                        <span>DHL</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="courier" value="FedEx" class="accent-blue-600">
+                        <span>FedEx</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="courier" value="UPS" class="accent-blue-600">
+                        <span>UPS</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="courier" value="Local Courier" class="accent-blue-600">
+                        <span>Local Courier</span>
+                    </label>
+                </div>
+            </div>
+            <button class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg mt-4 hover:bg-blue-700 transition-colors">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 px-4 rounded-t-3xl mt-8">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h4 class="text-xl font-bold mb-4 flex items-center">
+                    <img src="https://placehold.co/32x32/blue/white?text=LOGO" alt="Commerce.io Logo" class="h-8 w-8 rounded-full mr-2">
+                    Commerce.io
+                </h4>
+                <p class="text-gray-400 max-w-sm">We provide the highest quality products with a focus on style, comfort, and sustainability.</p>
+                <div class="mt-4">
+                    <span class="font-semibold text-white">Vision:</span>
+                    <span class="text-gray-400">To be the leading platform for stylish, sustainable commerce worldwide.</span>
+                </div>
+                <div>
+                    <span class="font-semibold text-white">Mission:</span>
+                    <span class="text-gray-400">Empowering customers with quality products that blend style, comfort, and sustainability.</span>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Shop</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">FAQs</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Contact Us</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li>123 E-commerce Ave, Suite 456</li>
+                    <li>Anytown, USA 12345</li>
+                    <li><a href="mailto:info@commerce.io" class="hover:text-white transition-colors">info@commerce.io</a></li>
+                    <li>(123) 456-7890</li>
+                    <li>Branch: Nairobi, Kenya</li>
+                    <li>Branch: London, UK</li>
+                    <li>Branch: Mumbai, India</li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-gray-500">
+            &copy; 2024 Commerce.io. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- AI Chatbot Help Center Button -->
+<button id="chatbot-toggle" class="fixed bottom-8 right-8 bg-blue-600 text-white rounded-full shadow-lg p-4 z-50 flex items-center hover:bg-blue-700 transition-colors">
+    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9"></path><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14s1.5 2 4 2 4-2 4-2"></path></svg>
+    Help Center
+</button>
+
+<!-- Chatbot Modal -->
+<div id="chatbot-modal" class="fixed bottom-24 right-8 bg-white rounded-xl shadow-xl w-80 max-w-full hidden flex-col z-50 border border-blue-200">
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+        <span class="font-bold text-blue-700">AI Chatbot Help Center</span>
+        <button id="close-chatbot" class="text-gray-500 hover:text-gray-800 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+    <div id="chatbot-messages" class="px-4 py-2 h-64 overflow-y-auto text-sm">
+        <div class="mb-2 text-gray-700">👋 Hi! I'm your AI assistant. How can I help you navigate the website?</div>
+    </div>
+    <form id="chatbot-form" class="flex px-4 py-3 border-t gap-2">
+        <input type="text" id="chatbot-input" class="flex-1 border rounded px-2 py-1" placeholder="Type your question..." autocomplete="off" required>
+        <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Send</button>
+    </form>
+</div>
+
+<script>
+    // Chatbot UI logic
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotModal = document.getElementById('chatbot-modal');
+    const closeChatbot = document.getElementById('close-chatbot');
+    const chatbotForm = document.getElementById('chatbot-form');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    chatbotToggle.addEventListener('click', () => {
+        chatbotModal.classList.toggle('hidden');
+        chatbotInput.focus();
+    });
+
+    closeChatbot.addEventListener('click', () => {
+        chatbotModal.classList.add('hidden');
+    });
+
+    // Simple AI chatbot responses (demo)
+    function getChatbotResponse(message) {
+        message = message.toLowerCase();
+        if (message.includes('register') || message.includes('sign up')) {
+            return "To register, click the 'Register/Login' button in the top navigation and fill in your details.";
+        }
+        if (message.includes('login')) {
+            return "To login, click the 'Register/Login' button and enter your email and password.";
+        }
+        if (message.includes('cart') || message.includes('checkout')) {
+            return "To view your cart, click the cart icon in the navigation. You can checkout from the cart modal.";
+        }
+        if (message.includes('search')) {
+            return "Use the search bar in the navigation to find products quickly.";
+        }
+        if (message.includes('review')) {
+            return "To leave a review, click 'Leave a Review' on any product card.";
+        }
+        if (message.includes('payment')) {
+            return "We support Credit Card, PayPal, and Mobile Money payments at checkout.";
+        }
+        if (message.includes('contact')) {
+            return "You can find our contact information in the footer section.";
+        }
+        if (message.includes('dashboard')) {
+            return "After logging in, you'll see a dashboard with your details.";
+        }
+        return "I'm here to help! Ask me anything about using this website.";
+    }
+
+    chatbotForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userMsg = chatbotInput.value.trim();
+        if (!userMsg) return;
+        // Show user message
+        const userDiv = document.createElement('div');
+        userDiv.className = "mb-2 text-right text-blue-600";
+        userDiv.textContent = "You: " + userMsg;
+        chatbotMessages.appendChild(userDiv);
+        // Get AI response
+        setTimeout(() => {
+            const aiDiv = document.createElement('div');
+            aiDiv.className = "mb-2 text-gray-700";
+            aiDiv.textContent = "🤖 " + getChatbotResponse(userMsg);
+            chatbotMessages.appendChild(aiDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }, 500);
+        chatbotInput.value = '';
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    });
+</script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const products = [
+                { id: 1, name: 'Sleek Running Shoes', price: 120.00, image: 'https://placehold.co/400x300/a5f3e4/134e4a?text=Shoe' },
+                { id: 2, name: 'Minimalist Backpack', price: 85.00, image: 'https://placehold.co/400x300/fecaca/991b1b?text=Backpack' },
+                { id: 3, name: 'Smartwatch V2', price: 299.99, image: 'https://placehold.co/400x300/e9d5ff/4c1d95?text=Smartwatch' },
+                { id: 4, name: 'Vintage Leather Jacket', price: 180.50, image: 'https://placehold.co/400x300/d1d5db/374151?text=Jacket' },
+                { id: 5, name: 'Handmade Ceramic Mug', price: 25.00, image: 'https://placehold.co/400x300/c7d2fe/3730a3?text=Mug' },
+                { id: 6, name: 'Classic Sunglasses', price: 75.00, image: 'https://placehold.co/400x300/fde68a/92400e?text=Sunglasses' },
+                { id: 7, name: 'Noise-Cancelling Headphones', price: 150.00, image: 'https://placehold.co/400x300/dbeafe/1e40af?text=Headphones' },
+                { id: 8, name: 'Yoga Mat', price: 40.00, image: 'https://placehold.co/400x300/f0abfc/701a75?text=Yoga+Mat' }
+            ];
+
+            const productGrid = document.getElementById('product-grid');
+            const searchInput = document.getElementById('search-input');
+            const cartButton = document.getElementById('cart-button');
+            const cartModal = document.getElementById('cart-modal');
+            const closeCartModal = document.getElementById('close-cart-modal');
+            const cartCount = document.getElementById('cart-count');
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotalSpan = document.getElementById('cart-total');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            const menuToggle = document.getElementById('menu-toggle');
+            const navMenu = document.getElementById('nav-menu');
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || {};
+
+            // Function to render products
+            const renderProducts = (filteredProducts) => {
+                productGrid.innerHTML = '';
+                filteredProducts.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105';
+                    productCard.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">${product.name}</h3>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold text-gray-900">$${product.price.toFixed(2)}</span>
+                                <button class="add-to-cart-btn bg-blue-600 text-white py-2 px-4 rounded-full font-bold shadow-md hover:bg-blue-700 transition-colors duration-200" data-id="${product.id}">
+                                    Add to Cart
+                                </button>
+                            </div>
+                            <div class="flex items-center mt-2">
+                                <span class="text-yellow-400 mr-2">Rating:</span>
+                                <div class="flex" data-product-id="${product.id}">
+                                    ${[1,2,3,4,5].map(star => `
+                                        <svg class="w-5 h-5 star" data-star="${star}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <polygon points="12,2 15,8.5 22,9.3 17,14.1 18.5,21 12,17.8 5.5,21 7,14.1 2,9.3 9,8.5" 
+                                                stroke="currentColor" stroke-width="2" fill="none"/>
+                                        </svg>
+                                    `).join('')}
+                                </div>
+                                <span class="ml-2 text-sm text-gray-500 rating-value" id="rating-value-${product.id}">0</span>
+                            </div>
+                            <div class="mt-4">
+                                <button class="bg-green-600 text-white px-3 py-1 rounded review-btn" data-id="${product.id}">Leave a Review</button>
+                                <div class="review-section hidden mt-2" id="review-section-${product.id}">
+                                    <textarea class="border rounded w-full px-2 py-1 mb-2 review-text" rows="2" placeholder="Write your review..."></textarea>
+                                    <button class="bg-blue-600 text-white px-3 py-1 rounded submit-review-btn" data-id="${product.id}">Submit Review</button>
+                                    <div class="text-sm text-gray-500 mt-2" id="review-message-${product.id}"></div>
+                                </div>
+                                <div class="mt-2">
+                                    <h5 class="font-semibold text-gray-700 mb-1">Reviews:</h5>
+                                    <ul class="text-sm text-gray-600 review-list" id="review-list-${product.id}"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    productGrid.appendChild(productCard);
+                });
+            };
+
+            // Function to update cart UI
+            const updateCartUI = () => {
+                cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
+                cartItemsContainer.innerHTML = '';
+                if (cart.length === 0) {
+                    emptyCartMessage.classList.remove('hidden');
+                } else {
+                    emptyCartMessage.classList.add('hidden');
+                    cart.forEach(item => {
+                        const cartItem = document.createElement('div');
+                        cartItem.className = 'flex items-center justify-between py-2 border-b last:border-b-0';
+                        cartItem.innerHTML = `
+                            <div class="flex items-center">
+                                <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg mr-4">
+                                <div>
+                                    <p class="font-semibold">${item.name}</p>
+                                    <p class="text-sm text-gray-500">$${item.price.toFixed(2)} x ${item.quantity}</p>
+                                </div>
+                            </div>
+                            <button class="remove-from-cart-btn text-red-500 hover:text-red-700 transition-colors" data-id="${item.id}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1.41 1.41L12 15.83l-5.59-5.59L5 7l7 7 7-7z"></path></svg>
+                            </button>
+                        `;
+                        cartItemsContainer.appendChild(cartItem);
+                    });
+                }
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                cartTotalSpan.textContent = `$${total.toFixed(2)}`;
+                localStorage.setItem('cart', JSON.stringify(cart));
+            };
+
+            // Add to Cart handler
+            productGrid.addEventListener('click', (event) => {
+                if (event.target.classList.contains('add-to-cart-btn')) {
+                    const productId = parseInt(event.target.dataset.id);
+                    const productToAdd = products.find(p => p.id === productId);
+                    const existingItem = cart.find(item => item.id === productId);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        cart.push({ ...productToAdd, quantity: 1 });
+                    }
+                    updateCartUI();
+                }
+            });
+
+            // Remove from Cart handler
+            cartItemsContainer.addEventListener('click', (event) => {
+                if (event.target.closest('.remove-from-cart-btn')) {
+                    const productId = parseInt(event.target.closest('.remove-from-cart-btn').dataset.id);
+                    cart = cart.filter(item => item.id !== productId);
+                    updateCartUI();
+                }
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                const filteredProducts = products.filter(product =>
+                    product.name.toLowerCase().includes(searchTerm)
+                );
+                renderProducts(filteredProducts);
+            });
+
+            // Cart modal functionality
+            cartButton.addEventListener('click', () => {
+                cartModal.classList.remove('hidden');
+                cartModal.classList.add('flex');
+            });
+
+            closeCartModal.addEventListener('click', () => {
+                cartModal.classList.add('hidden');
+                cartModal.classList.remove('flex');
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === cartModal) {
+                    cartModal.classList.add('hidden');
+                    cartModal.classList.remove('flex');
+                }
+            });
+
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('hidden');
+            });
+            
+            // Initial render
+            renderProducts(products);
+            updateCartUI();
+
+            // Add this after DOMContentLoaded and after renderProducts(products);
+            const ratings = JSON.parse(localStorage.getItem('ratings')) || {};
+
+            productGrid.addEventListener('click', (event) => {
+                if (event.target.classList.contains('star')) {
+                    const star = parseInt(event.target.dataset.star);
+                    const productId = parseInt(event.target.parentElement.dataset.productId);
+                    ratings[productId] = star;
+                    localStorage.setItem('ratings', JSON.stringify(ratings));
+                    updateRatingDisplay(productId, star);
+                }
+            });
+
+            function updateRatingDisplay(productId, star) {
+                const ratingValue = document.getElementById(`rating-value-${productId}`);
+                if (ratingValue) ratingValue.textContent = star;
+                // Highlight stars
+                const starContainer = productGrid.querySelector(`[data-product-id="${productId}"]`);
+                if (starContainer) {
+                    Array.from(starContainer.children).forEach((svg, idx) => {
+                        svg.style.fill = idx < star ? '#fbbf24' : 'none';
+                    });
+                }
+            }
+
+            // On initial render, update all ratings
+            products.forEach(product => {
+                if (ratings[product.id]) updateRatingDisplay(product.id, ratings[product.id]);
+            });
+
+            // Add this inside your DOMContentLoaded event, after other event listeners
+            const checkoutButton = document.querySelector('.bg-blue-600');
+            checkoutButton.addEventListener('click', function() {
+                const payment = document.querySelector('input[name="payment"]:checked').value;
+                const clientName = document.getElementById('client-name').value;
+                const clientLocation = document.getElementById('client-location').value;
+                const orderNumber = document.getElementById('order-number').value;
+                const orderTracking = document.getElementById('order-tracking').value;
+
+                alert(
+                    `Selected payment option: ${payment}\n` +
+                    `Client Name: ${clientName}\n` +
+                    `Location: ${clientLocation}\n` +
+                    `Order Number: ${orderNumber}\n` +
+                    `Order Tracking: ${orderTracking}\n` +
+                    `(Checkout functionality not implemented)`
+                );
+            });
+
+            // --- Registration/Login Modal Logic ---
+            const authModal = document.getElementById('auth-modal');
+            const openAuthModal = document.getElementById('open-auth-modal');
+            const closeAuthModal = document.getElementById('close-auth-modal');
+            const authForm = document.getElementById('auth-form');
+            const loginForm = document.getElementById('login-form');
+            const showLogin = document.getElementById('show-login');
+            const showRegister = document.getElementById('show-register');
+            const authModalTitle = document.getElementById('auth-modal-title');
+            const authMessage = document.getElementById('auth-message');
+            // CAPTCHA
+            const captchaQuestion = document.getElementById('captcha-question');
+            const captchaAnswer = document.getElementById('captcha-answer');
+            const loginCaptchaQuestion = document.getElementById('login-captcha-question');
+            const loginCaptchaAnswer = document.getElementById('login-captcha-answer');
+
+            // Simple dashboard mockup
+            let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+            let loggedInUser = localStorage.getItem('loggedInUser') || null;
+
+            function generateCaptcha() {
+                const a = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 10) + 1;
+                captchaQuestion.textContent = `What is ${a} + ${b}?`;
+                captchaQuestion.dataset.answer = (a + b).toString();
+                loginCaptchaQuestion.textContent = `What is ${a} + ${b}?`;
+                loginCaptchaQuestion.dataset.answer = (a + b).toString();
+            }
+
+            openAuthModal.addEventListener('click', (e) => {
+                e.preventDefault();
+                authModal.classList.remove('hidden');
+                authModal.classList.add('flex');
+                authForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                authModalTitle.textContent = 'Register';
+                authMessage.textContent = '';
+                generateCaptcha();
+            });
+
+            closeAuthModal.addEventListener('click', () => {
+                authModal.classList.add('hidden');
+                authModal.classList.remove('flex');
+            });
+
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                authForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                authModalTitle.textContent = 'Login';
+                authMessage.textContent = '';
+                generateCaptcha();
+            });
+
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginForm.classList.add('hidden');
+                authForm.classList.remove('hidden');
+                authModalTitle.textContent = 'Register';
+                authMessage.textContent = '';
+                generateCaptcha();
+            });
+
+            // Registration
+            authForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('reg-name').value.trim();
+                const email = document.getElementById('reg-email').value.trim();
+                const password = document.getElementById('reg-password').value;
+                const location = document.getElementById('reg-location').value.trim();
+                if (captchaAnswer.value !== captchaQuestion.dataset.answer) {
+                    authMessage.textContent = 'CAPTCHA answer is incorrect.';
+                    return;
+                }
+                if (registeredUsers.some(u => u.email === email)) {
+                    authMessage.textContent = 'Email already registered.';
+                    return;
+                }
+                registeredUsers.push({ name, email, password, location });
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                authMessage.textContent = 'Registration successful! Please login.';
+                authForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                authModalTitle.textContent = 'Login';
+                generateCaptcha();
+            });
+
+            // Login
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+                if (loginCaptchaAnswer.value !== loginCaptchaQuestion.dataset.answer) {
+                    authMessage.textContent = 'CAPTCHA answer is incorrect.';
+                    return;
+                }
+                const user = registeredUsers.find(u => u.email === email && u.password === password);
+                if (!user) {
+                    authMessage.textContent = 'Invalid email or password.';
+                    return;
+                }
+                loggedInUser = email;
+                localStorage.setItem('loggedInUser', loggedInUser);
+                authMessage.textContent = `Welcome, ${user.name}!`;
+                setTimeout(() => {
+                    authModal.classList.add('hidden');
+                    authModal.classList.remove('flex');
+                    showDashboard(user);
+                }, 1000);
+            });
+
+            // Simple dashboard mockup
+            function showDashboard(user) {
+                alert(`Dashboard\n\nWelcome, ${user.name}!\nLocation: ${user.location}\nEmail: ${user.email}`);
+                // You can replace this with a real dashboard UI
+            }
+
+            // Optionally, show dashboard if already logged in
+            if (loggedInUser) {
+                const user = registeredUsers.find(u => u.email === loggedInUser);
+                if (user) showDashboard(user);
+            }
+        });
+    </script>
+
+</body>
+</html>
