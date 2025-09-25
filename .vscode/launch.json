@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "cloud_storage_app.py", // <-- Rename your file to this for best results
+                "FLASK_APP": " cloud storage-app.py",
                 "FLASK_ENV": "development"
             },
             "args": [
