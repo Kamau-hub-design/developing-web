@@ -1,14 +1,12 @@
-// Improved Number Converter supporting negative and fractional numbers, with better input validation and error feedback.
+// Improved Number Converter with negative/fractional support, input validation, error feedback, and copy-to-clipboard feature.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// The main entry point of the application.
 void main() {
   runApp(const MyApp());
 }
 
-// The root widget of the application.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -18,15 +16,13 @@ class MyApp extends StatelessWidget {
       title: 'Number Converter',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        // Use a consistent font for a clean look.
-        fontFamily: 'Inter', 
+        fontFamily: 'Inter',
       ),
       home: const NumberConverter(),
     );
   }
 }
 
-// The stateful widget for the main conversion screen.
 class NumberConverter extends StatefulWidget {
   const NumberConverter({super.key});
 
@@ -34,19 +30,17 @@ class NumberConverter extends StatefulWidget {
   State<NumberConverter> createState() => _NumberConverterState();
 }
 
-// The state class for the NumberConverter widget.
 class _NumberConverterState extends State<NumberConverter> {
   final TextEditingController _numberController = TextEditingController();
   String _decimalResult = '';
   String _binaryResult = '';
   String _hexResult = '';
   String _errorMessage = '';
-  int _selectedBase = 10; // Default base is Decimal.
+  int _selectedBase = 10;
 
   @override
   void initState() {
     super.initState();
-    // Listen for changes in the text field to perform real-time conversion.
     _numberController.addListener(_convertNumber);
   }
 
@@ -56,13 +50,11 @@ class _NumberConverterState extends State<NumberConverter> {
     super.dispose();
   }
 
-  // Converts the number from the selected base to others.
   void _convertNumber() {
     setState(() {
-      final String input = _numberController.text.trim();
+      final input = _numberController.text.trim();
       _errorMessage = '';
       if (input.isEmpty) {
-        // Clear all results if the input is empty.
         _decimalResult = '';
         _binaryResult = '';
         _hexResult = '';
@@ -70,12 +62,11 @@ class _NumberConverterState extends State<NumberConverter> {
       }
 
       try {
-        final double value = _parseInput(input, _selectedBase);
+        final value = _parseInput(input, _selectedBase);
         _decimalResult = value.toString();
         _binaryResult = _toBaseString(value, 2);
         _hexResult = _toBaseString(value, 16).toUpperCase();
       } catch (e) {
-        // If parsing fails, show an error message.
         _decimalResult = 'Invalid Input';
         _binaryResult = 'Invalid Input';
         _hexResult = 'Invalid Input';
@@ -84,7 +75,6 @@ class _NumberConverterState extends State<NumberConverter> {
     });
   }
 
-  // Parses input string to double, supporting negative and fractional numbers
   double _parseInput(String input, int base) {
     final regExp = RegExp(r'^-?[0-9A-Fa-f]+(\.[0-9A-Fa-f]+)?$');
     if (!regExp.hasMatch(input)) {
@@ -112,7 +102,6 @@ class _NumberConverterState extends State<NumberConverter> {
     return negative ? -result : result;
   }
 
-  // Converts double to string in given base (supports fraction up to 8 digits)
   String _toBaseString(double value, int base) {
     if (value.isNaN || value.isInfinite) return 'Invalid';
     bool negative = value < 0;
@@ -134,7 +123,13 @@ class _NumberConverterState extends State<NumberConverter> {
     return (negative ? '-' : '') + intStr + fracStr;
   }
 
-  // Builds the UI for the conversion screen.
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$label copied to clipboard!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +142,6 @@ class _NumberConverterState extends State<NumberConverter> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // Input field and base selection dropdown.
             Row(
               children: [
                 Expanded(
@@ -161,7 +155,6 @@ class _NumberConverterState extends State<NumberConverter> {
                       prefixIcon: const Icon(Icons.numbers),
                     ),
                     keyboardType: TextInputType.text,
-                    // Use a specific input formatter to allow valid characters for each base.
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(
                         _selectedBase == 10
@@ -174,14 +167,13 @@ class _NumberConverterState extends State<NumberConverter> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Dropdown to select the number base.
                 DropdownButton<int>(
                   value: _selectedBase,
                   onChanged: (int? newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedBase = newValue;
-                        _convertNumber(); // Re-convert with the new base.
+                        _convertNumber();
                       });
                     }
                   },
@@ -211,7 +203,6 @@ class _NumberConverterState extends State<NumberConverter> {
                 ),
               ),
             const SizedBox(height: 30),
-            // Display results in a clear, card-like format.
             _buildResultCard('Decimal', _decimalResult),
             _buildResultCard('Binary', _binaryResult),
             _buildResultCard('Hexadecimal', _hexResult),
@@ -221,7 +212,6 @@ class _NumberConverterState extends State<NumberConverter> {
     );
   }
 
-  // A helper method to build a result display card.
   Widget _buildResultCard(String title, String result) {
     return Card(
       elevation: 4.0,
@@ -231,24 +221,37 @@ class _NumberConverterState extends State<NumberConverter> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    result,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              result,
-              style: const TextStyle(
-                fontSize: 24,
-                color: Colors.blueAccent,
-                fontWeight: FontWeight.w500,
-              ),
+            IconButton(
+              icon: const Icon(Icons.copy, color: Colors.blueAccent),
+              tooltip: 'Copy $title',
+              onPressed: result.isNotEmpty && result != 'Invalid Input'
+                  ? () => _copyToClipboard(result, title)
+                  : null,
             ),
           ],
         ),
