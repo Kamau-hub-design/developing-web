@@ -1,4 +1,4 @@
-// A number conversion system using Flutter.
+// Improved Number Converter supporting negative and fractional numbers, with better input validation and error feedback.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +40,7 @@ class _NumberConverterState extends State<NumberConverter> {
   String _decimalResult = '';
   String _binaryResult = '';
   String _hexResult = '';
+  String _errorMessage = '';
   int _selectedBase = 10; // Default base is Decimal.
 
   @override
@@ -59,6 +60,7 @@ class _NumberConverterState extends State<NumberConverter> {
   void _convertNumber() {
     setState(() {
       final String input = _numberController.text.trim();
+      _errorMessage = '';
       if (input.isEmpty) {
         // Clear all results if the input is empty.
         _decimalResult = '';
@@ -67,21 +69,69 @@ class _NumberConverterState extends State<NumberConverter> {
         return;
       }
 
-      // Try to parse the input number based on the selected base.
-      final int? number = int.tryParse(input, radix: _selectedBase);
-
-      if (number != null) {
-        // If parsing is successful, convert to other bases.
-        _decimalResult = number.toString();
-        _binaryResult = number.toRadixString(2);
-        _hexResult = number.toRadixString(16).toUpperCase();
-      } else {
+      try {
+        final double value = _parseInput(input, _selectedBase);
+        _decimalResult = value.toString();
+        _binaryResult = _toBaseString(value, 2);
+        _hexResult = _toBaseString(value, 16).toUpperCase();
+      } catch (e) {
         // If parsing fails, show an error message.
         _decimalResult = 'Invalid Input';
         _binaryResult = 'Invalid Input';
         _hexResult = 'Invalid Input';
+        _errorMessage = e.toString().replaceFirst('FormatException: ', '');
       }
     });
+  }
+
+  // Parses input string to double, supporting negative and fractional numbers
+  double _parseInput(String input, int base) {
+    final regExp = RegExp(r'^-?[0-9A-Fa-f]+(\.[0-9A-Fa-f]+)?$');
+    if (!regExp.hasMatch(input)) {
+      throw FormatException('Invalid format for base $base');
+    }
+    bool negative = input.startsWith('-');
+    final parts = input.replaceFirst('-', '').split('.');
+    double result = 0;
+    // Integer part
+    for (int i = 0; i < parts[0].length; i++) {
+      int digit = int.parse(parts[0][i], radix: base);
+      result = result * base + digit;
+    }
+    // Fractional part
+    if (parts.length > 1) {
+      double frac = 0;
+      double basePow = base.toDouble();
+      for (int i = 0; i < parts[1].length; i++) {
+        int digit = int.parse(parts[1][i], radix: base);
+        frac += digit / basePow;
+        basePow *= base;
+      }
+      result += frac;
+    }
+    return negative ? -result : result;
+  }
+
+  // Converts double to string in given base (supports fraction up to 8 digits)
+  String _toBaseString(double value, int base) {
+    if (value.isNaN || value.isInfinite) return 'Invalid';
+    bool negative = value < 0;
+    value = value.abs();
+    int intPart = value.floor();
+    double fracPart = value - intPart;
+    String intStr = intPart.toRadixString(base);
+    String fracStr = '';
+    if (fracPart > 0) {
+      fracStr = '.';
+      double frac = fracPart;
+      for (int i = 0; i < 8 && frac > 0; i++) {
+        frac *= base;
+        int digit = frac.floor();
+        fracStr += digit.toRadixString(base);
+        frac -= digit;
+      }
+    }
+    return (negative ? '-' : '') + intStr + fracStr;
   }
 
   // Builds the UI for the conversion screen.
@@ -110,15 +160,15 @@ class _NumberConverterState extends State<NumberConverter> {
                       ),
                       prefixIcon: const Icon(Icons.numbers),
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.text,
                     // Use a specific input formatter to allow valid characters for each base.
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(
                         _selectedBase == 10
-                            ? r'[0-9]'
+                            ? r'[-0-9.]'
                             : _selectedBase == 2
-                                ? r'[0-1]'
-                                : r'[0-9a-fA-F]',
+                                ? r'[-0-1.]'
+                                : r'[-0-9a-fA-F.]',
                       )),
                     ],
                   ),
@@ -152,6 +202,14 @@ class _NumberConverterState extends State<NumberConverter> {
                 ),
               ],
             ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _errorMessage,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
             const SizedBox(height: 30),
             // Display results in a clear, card-like format.
             _buildResultCard('Decimal', _decimalResult),
